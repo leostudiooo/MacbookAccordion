@@ -35,7 +35,7 @@ _ensure_sounddevice_portaudio_filesystem()
 
 SAMPLE_RATE = 44100
 BLOCK_SIZE = 256
-TONE_NAMES = ("Classic Saw", "Tutorial Reed")
+TONE_NAMES = ("Classic Saw", "Tutorial Reed", "Classic Organ")
 
 
 def midi_to_freq(midi: int) -> float:
@@ -131,6 +131,8 @@ class PolyAccordionSynth:
 
             if tone == "Tutorial Reed":
                 f1, f2 = f * (1.0 - detune), f * 2.0 * (1.0 + detune)
+            elif tone == "Classic Organ":
+                f1, f2 = f, f
             else:
                 f1, f2 = f * (1.0 - detune), f * (1.0 + detune)
             inc1, inc2 = f1 / SAMPLE_RATE, f2 / SAMPLE_RATE
@@ -141,10 +143,26 @@ class PolyAccordionSynth:
             if tone == "Tutorial Reed":
                 square2 = np.where(ph2 < 0.5, 1.0, -1.0).astype(np.float32)
                 sig = 0.62 * saw1 + 0.38 * square2
+            elif tone == "Classic Organ":
+                harmonic_levels = (
+                    (1, 0.82),
+                    (2, 0.54),
+                    (3, 0.34),
+                    (4, 0.22),
+                    (6, 0.16),
+                    (8, 0.10),
+                )
+                sig = sum(
+                    level * np.sin(2.0 * np.pi * harmonic * ph1)
+                    for harmonic, level in harmonic_levels
+                ).astype(np.float32)
+                if k in held and e <= 1e-6:
+                    click = 0.055 * np.exp(-idx / (0.003 * SAMPLE_RATE))
+                    sig += click
             else:
                 saw2 = 2.0 * ph2 - 1.0
                 sig = 0.6 * saw1 + 0.4 * saw2
-            sig = np.tanh(1.6 * sig)
+            sig = np.tanh((1.15 if tone == "Classic Organ" else 1.6) * sig)
 
             out += sig * env
 
@@ -182,7 +200,7 @@ class PolyAccordionSynth:
 
         out *= (master * bellows)
         out = np.clip(out, -1.0, 1.0).astype(np.float32)
-        if tone != "Tutorial Reed" or chorus_mix <= 0.0:
+        if tone not in ("Tutorial Reed", "Classic Organ") or chorus_mix <= 0.0:
             return np.column_stack((out, out))
 
         buffer = self._chorus_buffer
@@ -201,6 +219,7 @@ class PolyAccordionSynth:
             phase = (phase + 2.0 * np.pi * chorus_rate / SAMPLE_RATE) % (2.0 * np.pi)
         self._chorus_write = write
         self._chorus_phase = phase
-        left = out * (1.0 - chorus_mix) + wet * chorus_mix
-        right = out * (1.0 - chorus_mix) + wet * chorus_mix * 0.82
+        organ_chorus_mix = min(0.03, chorus_mix) if tone == "Classic Organ" else chorus_mix
+        left = out * (1.0 - organ_chorus_mix) + wet * organ_chorus_mix
+        right = out * (1.0 - organ_chorus_mix) + wet * organ_chorus_mix * 0.82
         return np.column_stack((left, right)).astype(np.float32)

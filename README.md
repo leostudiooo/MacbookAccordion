@@ -13,7 +13,7 @@
 - 偵測 MacBook 螢幕開蓋角度（Lid Angle Sensor），模擬手風琴的風箱推拉動作
 - 搭配鍵盤按鍵彈奏音符，透過多音訊合成（PolyAccordionSynth）即時產生音效
 - 提供 GUI 參數面板，可即時調整風箱靈敏度、音色等參數
-- 提供 `Classic Saw` 與 `Tutorial Reed` 兩種音色，可在介面頂部即時切換比較
+- 提供 `Classic Saw`、`Tutorial Reed` 與 `Classic Organ` 三種音色，可在介面頂部即時切換比較
 - 若無法讀取實體感應器，自動切換為模擬模式（鍵盤 ↑↓ 控制角度）
 
 程式入口仍是 `lid_accordion.py`；音訊、輸入、鍵盤映射、參數和 GUI 控制元件已拆分至 `accordion/`，
@@ -124,6 +124,7 @@ C5 C#5 D5 D#5 E5 F5 F#5 G5 G#5 A5 A#5 B5 C6 C#6 D6 D#6 E6
 
 - `Classic Saw`：原本的雙鋸齒波、輕微失諧音色。
 - `Tutorial Reed`：依照教程設計的根音 saw、高八度 square wave、低通濾波器和立體聲 chorus。
+- `Classic Organ`：以 drawbar 概念疊加多個整數倍諧波的經典風琴音色，帶有輕微按鍵 click 和 chorus。
 
 ---
 
