@@ -15,6 +15,10 @@ Built in spare time at work, developed step by step with the help of ChatGPT.
 - Provides a GUI parameter panel for live adjustment of bellows sensitivity, timbre, and more
 - Automatically falls back to simulation mode (↑↓ keys control angle) when the physical sensor is unavailable
 
+The application still starts from `lid_accordion.py`. Audio, input, keyboard mappings,
+parameters, and GUI controls now live in the `accordion/` package; the main loop and user
+interaction remain unchanged.
+
 ---
 
 ## Technical Reference

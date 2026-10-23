@@ -4,7 +4,7 @@ APP = ['lid_accordion.py']
 DATA_FILES = []
 OPTIONS = {
     'argv_emulation': True,
-    'packages': ['pygame', 'numpy', 'pybooklid', 'sounddevice'],
+    'packages': ['accordion', 'pygame', 'numpy', 'pybooklid', 'sounddevice'],
     'includes': ['sounddevice'],
     'plist': {
         'CFBundleName': 'LidAccordion',
