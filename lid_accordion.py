@@ -289,8 +289,8 @@ def main():
             pygame.draw.rect(screen, (40, 40, 48), bar_rect, border_radius=8)
             pygame.draw.rect(screen, (215, 215, 225), knob_rect, border_radius=8)
 
-        cheat1 = "Keymap: 1-0=black (gaps: 3 & 7 are silent) | QWERTYUIOP=white"
-        cheat2 = "High: ASDFGHJKL;=black | ZXCVBNM,./=white  | Mouse wheel in param area to scroll"
+        cheat1 = r"Keymap: Q2W3ER5T6Y7UI9O0P[= Backspace \ (C4 to G#5)"
+        cheat2 = "High: ZSXDCVGBHNJM,L.;/ (C5 to E6) | Mouse wheel in param area to scroll"
         footer_y = win_h - RESERVED_FOOTER_H
         pygame.draw.rect(screen, (14, 14, 18), (0, footer_y, win_w, RESERVED_FOOTER_H))
         pygame.draw.line(screen, (45, 45, 55), (0, footer_y), (win_w, footer_y), 2)

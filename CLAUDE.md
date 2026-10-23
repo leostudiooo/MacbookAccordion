@@ -35,7 +35,7 @@ The entire application lives in a single file: `lid_accordion.py`.
 
 - **Bellows pipeline** (in `main()` loop) — Reads lid angle via `pybooklid.read_lid_angle()`, computes angular velocity, maps it through dead zone / fill / leak / smoothing params to produce a 0–1 bellows value fed to the synth.
 
-- **Key mapping** — Four lookup tables (`WHITE_Q`, `BLACK_1`, `WHITE_Z`, `BLACK_A`) map pygame key constants to MIDI note numbers across two octave groups. Octave transposition via Shift/Ctrl/Tab key-up events.
+- **Key mapping** — Two chromatic keyboard sequences (`LOWER_KEYBOARD`, `UPPER_KEYBOARD`) map pygame key constants to MIDI note numbers, starting at C on Q and Z. The lower sequence continues through Backspace and backslash; octave transposition uses Shift/Ctrl/Tab key-up events.
 
 - **GUI** — Pygame-based. Fixed header (mode, angle gauge, bellows bar) + scrollable parameter panel with `Slider` widgets and a custom `ScrollBar`. The `Param` dataclass holds per-parameter metadata (range, step, format, group).
 

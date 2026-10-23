@@ -66,23 +66,21 @@ python lid_accordion.py
 
 ## Key Bindings
 
-The keyboard is mapped to two octave ranges, laid out to mimic a piano's black and white keys.
+The keyboard is mapped to two continuous chromatic ranges, starting at C on `Q` and `Z`.
 
-### Group 1 (Mid range, MIDI 60–78)
+### Group 1 (Mid range, MIDI 60–80)
 
-| Type | Keys | Notes |
-|------|------|-------|
-| White keys | `Q` `W` `E` `R` `T` `Y` `U` `I` `O` `P` | C4 D4 E4 F4 G4 A4 B4 C5 D5 E5 |
-| Black keys | `1` `2` `4` `5` `6` `8` `9` `0` | C#4 D#4 F#4 G#4 A#4 C#5 D#5 F#5 |
+```text
+Q 2 W 3 E R 5 T 6 Y 7 U I 9 O 0 P [ = Backspace \
+C4 C#4 D4 D#4 E4 F4 F#4 G4 G#4 A4 A#4 B4 C5 C#5 D5 D#5 E5 F5 F#5 G5 G#5
+```
 
-> Note: `3` and `7` are intentionally left unmapped to preserve piano black-key spacing.
+### Group 2 (High range, MIDI 72–87)
 
-### Group 2 (High range, MIDI 72–94)
-
-| Type | Keys | Notes |
-|------|------|-------|
-| White keys | `Z` `X` `C` `V` `B` `N` `M` `,` `.` `/` | C5 D5 E5 F5 G5 A5 B5 C6 D6 E6 |
-| Black keys | `A` `S` `D` `F` `G` `H` `J` `K` `L` `;` | C#5 D#5 F#5 G#5 A#5 C#6 D#6 F#6 G#6 A#6 |
+```text
+Z S X D C V G B H N J M , L . ; /
+C5 C#5 D5 D#5 E5 F5 F#5 G5 G#5 A5 A#5 B5 C6 C#6 D6 D#6 E6
+```
 
 ### Octave Transpose
 
