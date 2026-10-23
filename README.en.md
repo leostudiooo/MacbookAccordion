@@ -13,6 +13,7 @@ Built in spare time at work, developed step by step with the help of ChatGPT.
 - Reads the MacBook lid angle sensor to simulate accordion bellows push/pull motion
 - Play notes via keyboard keys; audio is synthesized in real time using `PolyAccordionSynth`
 - Provides a GUI parameter panel for live adjustment of bellows sensitivity, timbre, and more
+- Provides `Classic Saw` and `Tutorial Reed` timbres with a top-level selector for instant comparison
 - Automatically falls back to simulation mode (↑↓ keys control angle) when the physical sensor is unavailable
 
 The application still starts from `lid_accordion.py`. Audio, input, keyboard mappings,
@@ -115,6 +116,15 @@ C5 C#5 D5 D#5 E5 F5 F#5 G5 G#5 A5 A#5 B5 C6 C#6 D6 D#6 E6
 | Note release time | Note fade-out time (seconds) |
 | Reed thickness (detune) | Dual sawtooth wave detune amount, simulating accordion reed thickness |
 | Air / reed noise | Amount of airflow and reed noise |
+| Reed filter cutoff | Low-pass cutoff for `Tutorial Reed` |
+| Filter resonance | Low-pass resonance for `Tutorial Reed` |
+| Chorus mix | Stereo chorus mix for `Tutorial Reed` |
+| Chorus rate (Hz) | Chorus modulation rate for `Tutorial Reed` |
+
+### Timbres
+
+- `Classic Saw`: the original dual-saw, lightly detuned timbre.
+- `Tutorial Reed`: the tutorial-inspired root saw, octave-up square wave, low-pass filter, and stereo chorus.
 
 ---
 

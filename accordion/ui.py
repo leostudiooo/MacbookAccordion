@@ -75,3 +75,32 @@ class ScrollBar:
         elif e.type == pygame.MOUSEMOTION and self.drag:
             return "drag"
         return False
+
+
+class ToneSelector:
+    def __init__(self, names, selected):
+        self.names = tuple(names)
+        self.selected = selected
+        self.rects = []
+
+    def layout(self, x, y, button_w=190, h=30, gap=8):
+        self.rects = [
+            pygame.Rect(x + i * (button_w + gap), y, button_w, h)
+            for i in range(len(self.names))
+        ]
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            for name, rect in zip(self.names, self.rects):
+                if rect.collidepoint(event.pos):
+                    self.selected = name
+                    return name
+        return None
+
+    def draw(self, screen, font):
+        for name, rect in zip(self.names, self.rects):
+            active = name == self.selected
+            color = (215, 215, 225) if active else (65, 65, 75)
+            text_color = (20, 20, 24) if active else (220, 220, 220)
+            pygame.draw.rect(screen, color, rect, border_radius=6)
+            screen.blit(font.render(name, True, text_color), (rect.x + 10, rect.y + 5))

@@ -5,11 +5,11 @@ import sys
 import time
 import pygame
 
-from accordion.audio import BLOCK_SIZE, SAMPLE_RATE, PolyAccordionSynth
+from accordion.audio import BLOCK_SIZE, SAMPLE_RATE, TONE_NAMES, PolyAccordionSynth
 from accordion.input import try_read_lid_angle
 from accordion.keyboard import KEY_TO_MIDI, midi_to_name, voice_key
 from accordion.params import Param
-from accordion.ui import ScrollBar, Slider
+from accordion.ui import ScrollBar, Slider, ToneSelector
 import sounddevice as sd
 
 def clamp(v, a, b):
@@ -58,6 +58,10 @@ def main():
         Param("release_s", "Note release time (s)",   synth.release,0.010,1.000,0.005,".3f", "Sound"),
         Param("detune",    "Reed thickness (detune)", synth.detune, 0.000,0.050,0.001,".3f", "Sound"),
         Param("noise",     "Air / reed noise",        synth.noise_amount,0.000,0.080,0.001,".3f", "Sound"),
+        Param("filter_cutoff", "Reed filter cutoff",  synth.filter_cutoff, 0.10, 1.00, 0.01, ".2f", "Sound"),
+        Param("filter_resonance", "Filter resonance", synth.filter_resonance, 0.00, 0.15, 0.01, ".2f", "Sound"),
+        Param("chorus_mix", "Chorus mix",             synth.chorus_mix, 0.00, 0.40, 0.01, ".2f", "Sound"),
+        Param("chorus_rate", "Chorus rate (Hz)",       synth.chorus_rate, 0.10, 1.50, 0.01, ".2f", "Sound"),
     ]
     by_key = {p.key: p for p in params}
 
@@ -67,9 +71,14 @@ def main():
         synth.release = by_key["release_s"].value
         synth.detune = by_key["detune"].value
         synth.noise_amount = by_key["noise"].value
+        synth.filter_cutoff = by_key["filter_cutoff"].value
+        synth.filter_resonance = by_key["filter_resonance"].value
+        synth.chorus_mix = by_key["chorus_mix"].value
+        synth.chorus_rate = by_key["chorus_rate"].value
 
     sliders = [Slider(p, 0, 0, w=420, h=18) for p in params]
     scrollbar = ScrollBar()
+    tone_selector = ToneSelector(TONE_NAMES, synth.tone)
 
     scroll_y = 0
     content_h = 0
@@ -94,6 +103,7 @@ def main():
         view_h = (win_h - RESERVED_FOOTER_H) - SCROLL_AREA_TOP
         max_down = min(0, view_h - content_h)
         scroll_y = clamp(scroll_y, max_down, 0)
+        tone_selector.layout(22, 294, button_w=min(220, max(150, (win_w - 60) // max(1, len(TONE_NAMES)))), h=30)
 
     def apply_scroll():
         for s in sliders:
@@ -115,10 +125,10 @@ def main():
     audio_ok = True
     stream = None
     def audio_callback(outdata, frames, time_info, status):
-        outdata[:, 0] = synth.generate_frames(frames)
+        outdata[:] = synth.generate_frames(frames)
 
     try:
-        stream = sd.OutputStream(samplerate=SAMPLE_RATE, blocksize=BLOCK_SIZE, channels=1, dtype="float32", callback=audio_callback)
+        stream = sd.OutputStream(samplerate=SAMPLE_RATE, blocksize=BLOCK_SIZE, channels=2, dtype="float32", callback=audio_callback)
         stream.start()
     except Exception as e:
         audio_ok = False
@@ -153,6 +163,10 @@ def main():
                 screen = pygame.display.set_mode(event.size, pygame.RESIZABLE)
                 layout(event.w, event.h)
                 apply_scroll()
+
+            selected_tone = tone_selector.handle_event(event)
+            if selected_tone is not None:
+                synth.set_tone(selected_tone)
 
             if event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION):
                 if event.type != pygame.MOUSEMOTION:
@@ -254,6 +268,8 @@ def main():
         screen.blit(font.render(f"Bellows: {bellows:0.3f}   air: {air:0.3f}", True, (220, 220, 220)), (22, 198))
         held_notes = [midi_to_name(base + octave_off) for (_, base) in held.values()]
         screen.blit(font.render(f"Held notes: {', '.join(held_notes) if held_notes else '-'}", True, (220, 220, 220)), (22, 230))
+        screen.blit(font.render("Tone:", True, (220, 220, 220)), (22, 294))
+        tone_selector.draw(screen, font)
         bar_x, bar_y, bar_w, bar_h = 22, 264, min(720, win_w - 44 - SCROLLBAR_W - 10), 22
         pygame.draw.rect(screen, (70, 70, 80), (bar_x, bar_y, bar_w, bar_h), border_radius=8)
         pygame.draw.rect(screen, (230, 230, 230), (bar_x, bar_y, int(bar_w * bellows), bar_h), border_radius=8)
