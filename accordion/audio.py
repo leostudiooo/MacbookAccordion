@@ -58,6 +58,7 @@ class PolyAccordionSynth:
         self.chorus_mix = 0.16
         self.chorus_rate = 0.55
         self._filter_state = 0.0
+        self._organ_filter_state = (0.0, 0.0)
         self._chorus_buffer = np.zeros(int(SAMPLE_RATE * 0.05) + BLOCK_SIZE, dtype=np.float32)
         self._chorus_write = 0
         self._chorus_phase = 0.0
@@ -109,6 +110,9 @@ class PolyAccordionSynth:
             chorus_rate = self.chorus_rate
 
         idx = np.arange(frames, dtype=np.float32)
+        if tone == "Classic Organ":
+            attack = min(attack, 0.012)
+            release = min(release, 0.080)
         att_step = 1.0 / max(1e-6, attack * SAMPLE_RATE)
         rel_step = 1.0 / max(1e-6, release * SAMPLE_RATE)
 
@@ -144,27 +148,29 @@ class PolyAccordionSynth:
                 square2 = np.where(ph2 < 0.5, 1.0, -1.0).astype(np.float32)
                 sig = 0.62 * saw1 + 0.38 * square2
             elif tone == "Classic Organ":
+                brightness = 0.85 + 0.15 * bellows
                 harmonic_levels = (
                     (1, 0.82),
                     (2, 0.54),
                     (3, 0.34),
-                    (4, 0.22),
-                    (6, 0.16),
-                    (8, 0.10),
+                    (4, 0.22 * brightness),
+                    (6, 0.16 * brightness),
+                    (8, 0.10 * brightness),
                 )
                 sig = sum(
                     level * np.sin(2.0 * np.pi * harmonic * ph1)
                     for harmonic, level in harmonic_levels
                 ).astype(np.float32)
-                if k in held and e <= 1e-6:
-                    click = 0.055 * np.exp(-idx / (0.003 * SAMPLE_RATE))
-                    sig += click
             else:
                 saw2 = 2.0 * ph2 - 1.0
                 sig = 0.6 * saw1 + 0.4 * saw2
             sig = np.tanh((1.15 if tone == "Classic Organ" else 1.6) * sig)
 
             out += sig * env
+            if tone == "Classic Organ" and k in held and e <= 1e-6:
+                click = np.random.randn(frames).astype(np.float32)
+                click *= 0.055 * np.exp(-idx / (0.004 * SAMPLE_RATE))
+                out += click
 
             updated[k] = {
                 "freq": f,
@@ -198,7 +204,21 @@ class PolyAccordionSynth:
         if bellows > 0.0 and noise_amount > 0.0:
             out += (np.random.randn(frames).astype(np.float32) * noise_amount) * (bellows * 0.7)
 
-        out *= (master * bellows)
+        if tone == "Classic Organ":
+            organ_cutoff = 280.0 + 8200.0 * (bellows ** 0.65) * filter_cutoff
+            alpha = 1.0 - np.exp(-2.0 * np.pi * organ_cutoff / SAMPLE_RATE)
+            state1, state2 = self._organ_filter_state
+            filtered = np.empty_like(out)
+            for i, sample in enumerate(out):
+                state1 += alpha * (sample - state1)
+                state2 += alpha * (state1 - state2)
+                filtered[i] = state2
+            self._organ_filter_state = (float(state1), float(state2))
+            out = filtered * (1.0 - 0.15 * filter_resonance)
+            expression = bellows ** 0.35
+            out *= master * expression
+        else:
+            out *= master * bellows
         out = np.clip(out, -1.0, 1.0).astype(np.float32)
         if tone not in ("Tutorial Reed", "Classic Organ") or chorus_mix <= 0.0:
             return np.column_stack((out, out))
