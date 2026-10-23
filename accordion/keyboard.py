@@ -6,7 +6,7 @@ NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 LOWER_KEYBOARD = [
     pygame.K_q, pygame.K_2, pygame.K_w, pygame.K_3, pygame.K_e, pygame.K_r, pygame.K_5,
     pygame.K_t, pygame.K_6, pygame.K_y, pygame.K_7, pygame.K_u, pygame.K_i, pygame.K_9,
-    pygame.K_o, pygame.K_0, pygame.K_p, pygame.K_LEFTBRACKET, pygame.K_EQUALS,
+    pygame.K_o, pygame.K_0, pygame.K_p, pygame.K_LEFTBRACKET, pygame.K_EQUALS, pygame.K_RIGHTBRACKET,
     pygame.K_BACKSPACE, pygame.K_BACKSLASH,
 ]
 UPPER_KEYBOARD = [
